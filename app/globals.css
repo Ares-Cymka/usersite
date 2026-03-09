@@ -1,0 +1,830 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Holo card: typed custom properties — required for CSS animation interpolation */
+@property --ratio-x {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --ratio-y {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --correction {
+  syntax: "<percent>";
+  inherits: true;
+  initial-value: 0%;
+}
+
+:root {
+  --serenity-deep: #0c1929;
+  --serenity-mid: #1a365d;
+  --serenity-light: #2c5282;
+  --serenity-accent: #63b3ed;
+  --ocean-wave: #0d7a8c;
+  --text-primary: #212933;
+  --text-secondary: #343a40;
+  --text-muted: #6c757d;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  @apply font-sans antialiased;
+  background-color: #0c1929;
+  color: #f8fafc;
+}
+
+/* Global dark-mode normalization for current utility usage */
+.text-charcoal {
+  color: #f8fafc !important;
+}
+
+.text-charcoal-light {
+  color: #cbd5e1 !important;
+}
+
+.bg-white {
+  background-color: rgba(15, 23, 42, 0.92) !important;
+}
+
+.bg-gray-50 {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+.bg-gray-100 {
+  background-color: rgba(51, 65, 85, 0.9) !important;
+}
+
+.border-gray-200 {
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+@layer utilities {
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8 py-16 lg:py-24;
+  }
+  .container-narrow {
+    @apply max-w-5xl mx-auto;
+  }
+  .container-wide {
+    @apply max-w-7xl mx-auto;
+  }
+}
+
+/* Gentle wave decoration */
+.wave-bg {
+  background: linear-gradient(180deg, transparent 0%, rgba(13, 122, 140, 0.03) 50%, transparent 100%);
+}
+
+/* Hero: shader shows through; subtle overlays for depth */
+.hero-slide-bg {
+  background: transparent;
+  position: relative;
+}
+.hero-slide-bg::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 140%;
+  height: 140%;
+  top: -20%;
+  left: -20%;
+  background: radial-gradient(
+    ellipse 40% 40% at 30% 40%,
+    rgba(30, 64, 175, 0.12),
+    transparent 50%
+  );
+  animation: hero-slide-x 20s ease-in-out infinite;
+  pointer-events: none;
+}
+.hero-slide-bg::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 120%;
+  height: 120%;
+  top: -10%;
+  right: -10%;
+  background: radial-gradient(
+    ellipse 35% 35% at 70% 50%,
+    rgba(13, 122, 140, 0.1),
+    transparent 50%
+  );
+  animation: hero-slide-y 24s ease-in-out infinite;
+  pointer-events: none;
+}
+.hero-slide-orb {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+.hero-slide-orb-1 {
+  width: 50vmax;
+  height: 50vmax;
+  background: rgba(59, 130, 246, 0.25);
+  top: -10%;
+  right: -5%;
+  animation: hero-orb-1 18s ease-in-out infinite;
+}
+.hero-slide-orb-2 {
+  width: 40vmax;
+  height: 40vmax;
+  background: rgba(30, 58, 138, 0.3);
+  bottom: -15%;
+  left: -10%;
+  animation: hero-orb-2 22s ease-in-out infinite;
+}
+@keyframes hero-slide-x {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-8%, -5%); }
+}
+@keyframes hero-slide-y {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(5%, 8%); }
+}
+@keyframes hero-orb-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-10%, 5%) scale(1.05); }
+  66% { transform: translate(5%, -8%) scale(0.98); }
+}
+@keyframes hero-orb-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8%, -6%) scale(1.02); }
+  66% { transform: translate(-6%, 10%) scale(0.95); }
+}
+
+/* ── Bioluminescence glow cards (About values / highlights) ─── */
+.about-glow-card {
+  --glow: rgb(99, 179, 237);
+  background-color: rgba(12, 25, 41, 0.72) !important;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 1px 1px 5px inset rgba(255, 255, 255, 0.1);
+  will-change: box-shadow, border-color;
+  transition: box-shadow 0.5s ease-in-out, border-color 0.5s ease-in-out;
+}
+.about-glow-card:hover {
+  box-shadow:
+    1px 1px 14px inset var(--glow),
+    0 0 22px color-mix(in srgb, var(--glow) 28%, transparent);
+  border-color: var(--glow) !important;
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── Holographic 3D bio card ─────────────────────────────────── */
+.holo-card {
+  --c1: #63b3ed; /* serenity-accent blue */
+  --ratio-x: 0;
+  --ratio-y: 0;
+  --correction: 100%;
+  container-type: inline-size;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.2s linear;
+  transform: perspective(700px)
+    rotateY(calc(-20deg * var(--ratio-x)))
+    rotateX(calc(20deg * var(--ratio-y)));
+}
+.holo-card:hover { --correction: 0%; }
+.holo-card:hover .holo-bg   { opacity: 0.8; }
+.holo-card:hover .holo-circles { opacity: 1; }
+.holo-card.rotate {
+  animation: holo-rotate 10s ease-in-out infinite;
+  --correction: 30%;
+}
+.holo-card.rotate .holo-bg     { opacity: 0.8; }
+.holo-card.rotate .holo-circles { opacity: 1; }
+
+.holo-bg {
+  position: absolute;
+  border-radius: inherit;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse at calc(90% - var(--ratio-x) * 20%) calc(0% - var(--ratio-y) * 20%),
+      rgba(255,255,255,0.55),
+      var(--c1) 1%,
+      hsl(192deg 83% 42% / 80%) 20%,
+      transparent
+    ),
+    linear-gradient(
+      110deg,
+      #0093ff calc(10% - var(--ratio-x) * 20%),
+      #63b3ed calc(20% - var(--ratio-x) * 20%),
+      #0093ff calc(30% - var(--ratio-x) * 20%),
+      hsl(192deg 80% 35% / 80%) calc(60% - var(--ratio-x) * 20%),
+      transparent calc(100% - var(--ratio-x) * 20%),
+      transparent
+    );
+  transition: all 0.2s linear, opacity 0.8s ease;
+  mix-blend-mode: hard-light;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.holo-lines {
+  position: absolute;
+  border-radius: inherit;
+  inset: 0;
+  pointer-events: none;
+  mask-image: url(https://assets.codepen.io/907471/holo-card-lines.png?v5);
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  background: linear-gradient(
+    110deg,
+    #0093ff  calc(10% - var(--ratio-x) * 20% - var(--correction)),
+    #63b3ed  calc(20% - var(--ratio-x) * 20% - var(--correction)),
+    #0093ff  calc(30% - var(--ratio-x) * 20% - var(--correction)),
+    hsla(192, 83%, calc(77% - 20% * var(--ratio-x)), 1)
+             calc(40% - var(--ratio-x) * 20% - var(--correction)),
+    transparent
+             calc(60% - var(--ratio-x) * 20% - var(--correction)),
+    #2c5282  calc(70% - var(--ratio-x) * 20% - var(--correction)),
+    #0c1929  calc(80% - var(--ratio-x) * 20% - var(--correction))
+  );
+  transition: all 0.2s linear;
+  z-index: 1;
+}
+
+.holo-circles {
+  position: absolute;
+  border-radius: inherit;
+  overflow: hidden;
+  inset: 0;
+  opacity: 0.1;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.holo-circles::before,
+.holo-circles::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      ellipse at 50% 50%,
+      hsl(210deg 83% 65% / 45%) 0.25rem,
+      transparent 0.25rem,
+      transparent
+    )
+    repeat;
+  background-size: 1rem 1rem;
+}
+.holo-circles::before { transform: translate(-50%, -50%) rotate(45deg); }
+.holo-circles::after  { transform: translate(50%, 100%)  rotate(45deg); }
+
+@keyframes holo-rotate {
+  from { --ratio-x:  1.2; --ratio-y:  1.2; }
+  30%  { --ratio-x: -1.5; --ratio-y:  0.2; }
+  50%  { --ratio-x:  0.5; --ratio-y:  0.2; }
+  70%  { --ratio-x: -1.5; --ratio-y: -1.2; }
+  to   { --ratio-x:  1.2; --ratio-y:  1.2; }
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* Hero icon row: faded by default; hover = solid white circle + soft shadow (match ProjectModal close button) */
+.hero-icon-btn {
+  opacity: 0.65;
+  box-shadow: none;
+}
+.hero-icon-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.95) !important;
+  color: var(--charcoal, #1a1a1a) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+.hero-icon-btn:hover svg {
+  color: inherit;
+}
+
+/* Project modal: smooth slide-in */
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.project-modal-backdrop {
+  animation: modal-backdrop-in 0.25s ease-out;
+}
+.project-modal-content {
+  animation: modal-slide-in 0.3s ease-out;
+}
+
+/* Cosmic / starry section background */
+.about-cosmic {
+  position: relative;
+  background: linear-gradient(165deg, #0f0c1a 0%, #1a1535 25%, #0d1525 50%, #0c1929 100%);
+  overflow: hidden;
+}
+.about-cosmic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2.5px 2.5px at 20% 30%, rgba(255,255,255,1), transparent),
+    radial-gradient(2px 2px at 40% 70%, rgba(255,255,255,0.95), transparent),
+    radial-gradient(2px 2px at 50% 50%, rgba(255,255,255,1), transparent),
+    radial-gradient(2.5px 2.5px at 80% 10%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 90% 60%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(2px 2px at 15% 80%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 70% 40%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1.5px 1.5px at 25% 50%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1.5px 1.5px at 60% 20%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1.5px 1.5px at 75% 75%, rgba(255,255,255,0.6), transparent);
+  background-size: 200% 200%;
+  pointer-events: none;
+  opacity: 1;
+}
+.about-cosmic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(120, 100, 255, 0.08) 20%, transparent 40%, rgba(100, 200, 255, 0.06) 60%, transparent 100%);
+  pointer-events: none;
+}
+.section-title-underline {
+  display: inline-block;
+  padding-bottom: 0.2em;
+  border-bottom: 2px solid #212933;
+  margin-bottom: 2px;
+}
+.avatar-glow {
+  box-shadow:
+    0 0 200px rgba(255, 255, 255, 0.65),
+    0 0 200px rgba(255, 230, 180, 0.4),
+    0 0 120px rgba(255, 210, 150, 0.2),
+    inset 0 0 50px rgba(255, 255, 255, 0.12);
+}
+
+/* Blinking lights around avatar — more intense (opacity + filter only so position stays) */
+@keyframes blink-dot {
+  0%, 100% { opacity: 0.2; filter: brightness(0.5); }
+  50% { opacity: 1; filter: brightness(1.3); }
+}
+@keyframes blink-dot-scale {
+  0%, 100% { opacity: 0.2; transform: scale(0.9); filter: brightness(0.5); }
+  50% { opacity: 1; transform: scale(1.1); filter: brightness(1.3); }
+}
+.avatar-orbit-dot {
+  border-radius: 50%;
+  background: rgba(140, 255, 200, 1);
+  box-shadow:
+    0 0 16px rgba(140, 255, 200, 0.9),
+    0 0 32px rgba(140, 255, 200, 0.5);
+  animation: blink-dot 1.6s ease-in-out infinite;
+}
+.avatar-orb-blue {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(160, 230, 255, 1);
+  box-shadow:
+    0 0 20px rgba(160, 230, 255, 0.95),
+    0 0 40px rgba(160, 230, 255, 0.5);
+  animation: blink-dot-scale 1.8s ease-in-out infinite;
+}
+.avatar-orb-amber {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 220, 120, 1);
+  box-shadow:
+    0 0 18px rgba(255, 220, 120, 0.9),
+    0 0 36px rgba(255, 220, 120, 0.5);
+  animation: blink-dot-scale 2s ease-in-out infinite;
+}
+
+/* ========== Shader demo (Boxed Space Anomaly) ========== */
+.shader-demo-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 100vw;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+  pointer-events: none;
+}
+
+.shader-demo-container canvas,
+.shader-demo-container .editor,
+.shader-demo-container #controls {
+  pointer-events: auto;
+}
+
+.shader-demo-container canvas {
+  --canvas-z-index: -1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  object-fit: cover;
+  object-position: center;
+  background: black;
+  touch-action: none;
+  z-index: var(--canvas-z-index);
+  box-sizing: border-box;
+}
+
+.shader-demo-container .editor,
+.shader-demo-container .overlay,
+.shader-demo-container #error {
+  font-family: "Courier New", Courier, monospace;
+  background: repeating-linear-gradient(0deg, #000a, #1119, #000a 0.25rem);
+  padding: 1em;
+}
+
+.shader-demo-container .editor {
+  color: #fefefe;
+  tab-size: 2;
+  border: none;
+  resize: none;
+}
+
+.shader-demo-container .editor:focus {
+  outline: none;
+}
+
+.shader-demo-container #error {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding-block: 0;
+  padding-top: 0.5em;
+  color: firebrick;
+  overflow: auto;
+  text-wrap: pretty;
+}
+
+.shader-demo-container #indicator {
+  visibility: hidden;
+  position: absolute;
+  top: calc(var(--top, 0px) - var(--scroll-top, 0px));
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid firebrick;
+  transform: translateY(-25%);
+}
+
+.shader-demo-container .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+}
+
+.shader-demo-container .editor,
+.shader-demo-container .overlay {
+  font-size: 1rem;
+  line-height: 1.2;
+  white-space: pre;
+}
+
+.shader-demo-container #controls {
+  position: fixed;
+  top: 1em;
+  right: 2em;
+}
+
+.shader-demo-container .controls {
+  position: relative;
+  display: flex;
+  gap: 1.5em;
+  padding: 0.5em 1.25em;
+  background: #1111;
+  border-radius: 4px;
+}
+
+.shader-demo-container .controls::before,
+.shader-demo-container .controls::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  transform: scale(0.95);
+  border-radius: inherit;
+  opacity: 0;
+}
+
+.shader-demo-container .controls::before {
+  background: #aef;
+  animation: shader-pulse 2s infinite;
+}
+
+.shader-demo-container .controls::after {
+  background: #fefefe66;
+  transition: transform 200ms ease-in-out;
+}
+
+.shader-demo-container .controls:hover::before,
+.shader-demo-container .controls:hover::after {
+  opacity: 1;
+}
+
+.shader-demo-container .controls:hover::before {
+  transform: scale(0.98);
+  filter: blur(2px);
+}
+
+.shader-demo-container .controls:hover::after {
+  transform: scale(1.025, 1.1);
+}
+
+.shader-demo-container .controls:hover {
+  background: #111f;
+}
+
+@keyframes shader-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.0125);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.shader-demo-container .hidden {
+  display: none !important;
+}
+
+.shader-demo-container .opaque {
+  opacity: 1 !important;
+  background: #111 !important;
+}
+
+.shader-demo-container input {
+  all: unset;
+  opacity: 0.2;
+  filter: saturate(0) invert(1);
+  cursor: pointer;
+  transition: opacity 200ms ease-in-out;
+  padding: 0.25em 0.5em;
+}
+
+.shader-demo-container input:hover {
+  opacity: 1;
+}
+
+.shader-demo-container .icon {
+  text-align: center;
+  line-height: 1;
+}
+
+.shader-demo-container #btnToggleView::after {
+  content: "👁";
+}
+
+.shader-demo-container #btnToggleView:checked::after {
+  content: "✏️";
+}
+
+.shader-demo-container #btnToggleResolution::after {
+  content: "1️⃣";
+}
+
+.shader-demo-container #btnToggleResolution:checked::after {
+  content: "2️⃣";
+}
+
+.shader-demo-container #btnReset::after {
+  content: "⏮️";
+}
+
+/* ================================================
+   Experience Timeline  (adapted from @Hamadafayad)
+   ================================================ */
+
+/* Per-item color token — cycles through 5 ocean shades */
+.exp-tl > li                { --tc: #63b3ed; }
+.exp-tl > li:nth-child(5n+1) { --tc: #63b3ed; }
+.exp-tl > li:nth-child(5n+2) { --tc: #0d7a8c; }
+.exp-tl > li:nth-child(5n+3) { --tc: #67e8f9; }
+.exp-tl > li:nth-child(5n+4) { --tc: #2c5282; }
+.exp-tl > li:nth-child(5n)   { --tc: #553c9a; }
+
+/* Wrapper — center gradient vertical line */
+.exp-tl-wrap {
+  position: relative;
+}
+.exp-tl-wrap::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    #63b3ed 0%,
+    #0d7a8c 25%,
+    #67e8f9 50%,
+    #2c5282 75%,
+    #553c9a 100%
+  );
+  z-index: 0;
+}
+
+.exp-tl {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  perspective: 2000px;
+}
+
+.exp-tl > li {
+  position: relative;
+  margin-bottom: 40px;
+  box-sizing: border-box;
+}
+
+/* Dot marker — centered on the gradient line */
+.exp-tl > li::after {
+  content: "✓";
+  display: block;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: 90%;
+  font-weight: bold;
+  line-height: 35px;
+  text-align: center;
+  color: #fff;
+  background-color: var(--tc);
+  position: absolute;
+  left: calc(50% - 17px);
+  top: 22px;
+  z-index: 2;
+  transition: transform 1s linear;
+}
+.exp-tl > li:nth-child(5n+1)::after,
+.exp-tl > li:nth-child(5n+3)::after { color: #0a1420; }
+.exp-tl > li:hover::after { transform: rotateZ(360deg); }
+
+/* Odd items — content on RIGHT side of center line */
+.exp-tl > li:nth-child(odd) {
+  padding-left: calc(50% + 30px);
+}
+
+/* Even items — content on LEFT side of center line */
+.exp-tl > li:nth-child(even) {
+  padding-right: calc(50% + 30px);
+}
+
+/* Content card */
+.exp-tl-cont {
+  position: relative;
+  border: 2px solid var(--tc);
+  border-radius: 4px;
+  padding: 30px 15px 15px;
+  background: rgba(10, 20, 35, 0.82);
+  backdrop-filter: blur(12px);
+  color: var(--tc);
+  transition: transform 1.5s linear;
+}
+
+/* Arrow connector — direction matches which side the card is on */
+.exp-tl-cont::before {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  position: absolute;
+  border-style: solid;
+  top: 50%;
+  transform: translateY(-50%);
+}
+/* Odd (right) card: arrow points LEFT toward the line */
+.exp-tl > li:nth-child(odd) .exp-tl-cont {
+  transform-origin: left;
+}
+.exp-tl > li:nth-child(odd) .exp-tl-cont::before {
+  border-width: 11px 11px 11px 0;
+  border-color: transparent var(--tc) transparent transparent;
+  left: -11px;
+}
+/* Even (left) card: arrow points RIGHT toward the line */
+.exp-tl > li:nth-child(even) .exp-tl-cont {
+  transform-origin: right;
+}
+.exp-tl > li:nth-child(even) .exp-tl-cont::before {
+  border-width: 11px 0 11px 11px;
+  border-color: transparent transparent transparent var(--tc);
+  right: -11px;
+}
+
+/* Period badge — centered at top of card */
+.exp-tl-cont time {
+  display: block;
+  position: absolute;
+  top: -15px;
+  left: calc(50% - 70px);
+  width: 140px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 3px;
+  background-color: var(--tc);
+  color: #f5f5f5;
+  font-size: 80%;
+  text-transform: none;
+}
+.exp-tl > li:nth-child(5n+1) .exp-tl-cont time,
+.exp-tl > li:nth-child(5n+3) .exp-tl-cont time { color: #0a1420; }
+
+/* 3D flip on hover */
+.exp-tl > li:nth-child(odd):hover .exp-tl-cont {
+  transform: rotateY(-175deg) translate3d(60px, -20px, 5px);
+  transition: transform 1.5s linear;
+}
+.exp-tl > li:nth-child(even):hover .exp-tl-cont {
+  transform: rotateY(175deg) translate3d(-60px, -20px, 5px);
+  transition: transform 1.5s linear;
+}
+
+/* Counter-rotation keeps content readable when flipped */
+.exp-tl > li:nth-child(odd):hover .exp-tl-cont > * {
+  transform: rotateY(-175deg);
+  transition: transform 1.5s linear;
+}
+.exp-tl > li:nth-child(even):hover .exp-tl-cont > * {
+  transform: rotateY(175deg);
+  transition: transform 1.5s linear;
+}
+
+/* Mobile — collapse to single left-border column */
+@media screen and (max-width: 768px) {
+  .exp-tl-wrap::before {
+    left: 18px;
+    transform: none;
+  }
+  .exp-tl > li::after {
+    left: 0;
+    top: 22px;
+  }
+  .exp-tl > li:nth-child(odd),
+  .exp-tl > li:nth-child(even) {
+    padding-left: 52px;
+    padding-right: 0;
+  }
+  .exp-tl > li:nth-child(odd) .exp-tl-cont,
+  .exp-tl > li:nth-child(even) .exp-tl-cont {
+    transform-origin: left;
+  }
+  .exp-tl > li:nth-child(even) .exp-tl-cont::before {
+    border-width: 11px 11px 11px 0;
+    border-color: transparent var(--tc) transparent transparent;
+    left: -11px;
+    right: auto;
+  }
+  .exp-tl > li:nth-child(even):hover .exp-tl-cont {
+    transform: rotateY(-175deg) translate3d(60px, -20px, 5px);
+  }
+  .exp-tl > li:nth-child(even):hover .exp-tl-cont > * {
+    transform: rotateY(-175deg);
+  }
+}
